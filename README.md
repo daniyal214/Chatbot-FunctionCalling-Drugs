@@ -1,12 +1,18 @@
 # DrugChat - Health Assistant
 
 * Introduction
+* Demo
 * Requirements
 * Installation
 * Usage
 
 ## Introduction
 DrugChat is a Python project built using Streamlit and OpenAI to provide a conversational interface for answering user questions related to drugs, medicines, and health.
+
+## Demo
+Visit the following link to test the DrugChat Health Assistant:
+https://chatbot-functioncalling-drugs.streamlit.app/
+
 
 ## Requirements
 * Python >= 3.10

@@ -5,25 +5,36 @@ from bs4 import BeautifulSoup
 
 
 # A dummy function that always returns the same weather information
-def get_drug_info(question):
+def get_drug_info(medicine_name):
     print("IT RAN>>>>>>>>>>")
-    url = "https://www.drugs.com/search.php"
-    params = {
-        "searchterm": f"{question}",
-        "a": "1"
-    }
-    response = requests.get(url, params=params)
-    soup = BeautifulSoup(response.content, "html.parser")
-    first_result = soup.find("div", class_="ddc-media-list ddc-search-results").find("a")
-    if first_result:
-        href = first_result.get("href")
-        if href:
-            response = requests.get(href)
-            soup = BeautifulSoup(response.content, "html.parser")
-            result = soup.find("div", class_="contentBox")
-            if result:
-                print("RESULT>>>>>>>>>>>>>", result.text)
-                return result.text
+    print("QUESTION>>>>>>>>>>>>>", medicine_name)
+
+    question_lst = medicine_name.split(",")
+    question_lst = [i.strip() for i in question_lst]
+
+    answers = ""
+
+    for question in question_lst:
+        print("QUESTION>>>>>>>>>>>>>", question)
+
+        url = "https://www.drugs.com/search.php"
+        params = {
+            "searchterm": f"{question}",
+            "a": "1"
+        }
+        response = requests.get(url, params=params)
+        soup = BeautifulSoup(response.content, "html.parser")
+        first_result = soup.find("div", class_="ddc-media-list ddc-search-results").find("a")
+        if first_result:
+            href = first_result.get("href")
+            if href:
+                response = requests.get(href)
+                soup = BeautifulSoup(response.content, "html.parser")
+                result = soup.find("div", class_="contentBox")
+                if result:
+                    print("RESULT>>>>>>>>>>>>>", result.text)
+                    answers += result.text + "\n"
+    return answers
 
 
 messages = []
@@ -45,12 +56,16 @@ def run_conversation_backup(api_key, input_message):
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "question": {
+                    "medicine_name": {
                         "type": "string",
-                        "description": "The question you want to ask about the drug/medication",
+                        "description": "The name of the medicine/medicines",
+                    },
+                    "details": {
+                        "type": "string",
+                        "description": "The details about the medicine/medicines asked",
                     },
                 },
-                "required": ["question"],
+                "required": ["medicine_name", "details"],
             },
         }
     ]
@@ -69,8 +84,10 @@ def run_conversation_backup(api_key, input_message):
         function_to_call = available_functions[function_name]
         function_args = json.loads(response_message["function_call"]["arguments"])
         function_response = function_to_call(
-            question=function_args.get("question")
+            medicine_name=function_args.get("medicine_name"),
         )
+
+        print("FUNCTION RESPONSE>>>>>>>>>>>>>>", function_response)
 
         messages.append(response_message)
         # messages.append(
@@ -92,4 +109,3 @@ def run_conversation_backup(api_key, input_message):
         print("MESSAGE 2", messages)
         return resp, False
 
-# print(run_conversation())
